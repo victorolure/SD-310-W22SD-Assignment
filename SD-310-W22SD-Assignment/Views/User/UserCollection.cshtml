@@ -1,0 +1,36 @@
+﻿@model SD_310_W22SD_Assignment.Models.User
+
+
+@{
+    ViewData["Title"] = "UserCollectionDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@Model.Name's Playlist</h1>
+
+<div>
+    <h4>User</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+</div>
+<ul>
+    @foreach(Collection c in Model.Collections)
+    {
+        <li>@c.Song.Title - @c.Song.ArtistNavigation.Name</li>
+    }
+</ul>
+<form asp-action="UserCollection" method="post">
+    <select name="songId" asp-items="ViewBag.Message"></select>
+<button type="submit">Add to Playlist</button>
+</form>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

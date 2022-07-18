@@ -1,0 +1,9 @@
+﻿@using SD_310_W22SD_Assignment.Models.ViewModels
+@model ArtistSelectViewModel
+
+<h3>Select Artist</h3>
+<form asp-action="ArtistCollection">
+    <select name="artistId" asp-items="Model.ArtistSelect"></select>
+    <button type="submit">Check Song Collection</button>
+</form>
+

@@ -1,0 +1,31 @@
+﻿@model SD_310_W22SD_Assignment.Models.Artist
+
+@{
+    ViewData["Title"] = "ArtistDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>ArtistCollection</h1>
+
+<div>
+    <h4>Artist</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+</div>
+<ul>
+    @foreach(Song s in Model.Songs)
+    {
+        <li>@s.Title- @s.Collections.Count() Listener(s)</li>
+    }
+</ul>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
