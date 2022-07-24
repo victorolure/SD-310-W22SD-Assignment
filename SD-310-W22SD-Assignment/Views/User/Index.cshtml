@@ -2,7 +2,7 @@
 @model UserSelectViewModel
 
 <h3>Select User</h3>
-<form asp-action="UserCollection">
+<form asp-action="UserCollection" method="get">
     <select name="userId" asp-items="Model.UserSelect"></select>
     <button type="submit">Check Song Collection</button>
 </form>

@@ -24,53 +24,88 @@ namespace SD_310_W22SD_Assignment.Controllers
         {
             SongSelectViewModel sm = new SongSelectViewModel(_db.Songs.ToList());
             ViewBag.Message = sm.SongSelect;
-            
-            if(userId != null)
+            try
+            {
+                User user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+                return View(user);
+            }
+            catch
+            {
+                return View();
+            }
+
+        }
+        
+        [HttpPost]
+        public IActionResult UserCollection(int? userId, int? songId)
+        {
+            Song song = _db.Songs.First(s => s.Id == songId);
+            User user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+            Collection newCollection = new Collection();
+            SongSelectViewModel sm = new SongSelectViewModel(_db.Songs.ToList());
+            ViewBag.Message = sm.SongSelect;
+            if (!_db.Collections.Any(c => c.UserId == userId && c.SongId == songId))
+            {
+                newCollection.User = user;
+                newCollection.Song = song;
+                newCollection.UserId = user.Id;
+                newCollection.SongId = song.Id;
+                _db.Collections.Add(newCollection);
+                _db.SaveChanges();
+                user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+                return View("UserCollection", user);
+            }
+            else
+            {
+                return View("UserCollection", user);
+            }
+        }
+
+        
+
+        public IActionResult UserSong()
+        {
+            UserSongSelectViewModel um = new UserSongSelectViewModel(_db.Songs.ToList(), _db.Users.ToList());
+            return View(um);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateCollection(int? userId, int? songId)
+        {
+            UserSelectViewModel vm = new UserSelectViewModel(_db.Users.ToList());
+            if (userId != null && songId != null)
             {
                 try
                 {
-                    User user = _db.Users.Include(u => u.Collections.OrderBy(c=>c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s=>s.ArtistNavigation).First(u => u.Id == userId);
-                    return View(user);
+                    Song song = _db.Songs.First(s => s.Id == songId);
+                    User user = _db.Users.First(u => u.Id == userId);
+                    Collection newCollection = new Collection();
+                    if( !_db.Collections.Any(c => c.UserId== userId && c.SongId== songId))
+                    {
+                        newCollection.User = user;
+                        newCollection.Song = song;
+                        newCollection.UserId = user.Id;
+                        newCollection.SongId = song.Id;
+                        _db.Collections.Add(newCollection);
+                        _db.SaveChanges();
+                        return View("Index", vm);
+                    }
+                    else
+                    {
+                        return View("Index", vm);
+                    }
+                    
                 }
                 catch
                 {
-                    return RedirectToAction("Error", "Home");
+                    return View("Index");
                 }
             }
             else
             {
-                return RedirectToAction("Error", "Home");
+                return View("UserCollection");
             }
         }
-
-        //[HttpPost]
-        //public IActionResult UserCollection(int?userId,int? songId)
-        //{
-        //    if (userId != null && songId != null)
-        //    {
-        //        try
-        //        {
-        //            Song song = _db.Songs.First(s => s.Id == songId);
-        //            User user = _db.Users.First(u => u.Id == userId);
-        //            Collection newCollection = new Collection();
-        //            //newCollection.User = user;
-        //            // newCollection.Song = song;
-        //            newCollection.UserId = user.Id;
-        //            newCollection.SongId = song.Id;
-        //            _db.Collections.Add(newCollection);
-        //            _db.SaveChanges();
-        //            return View("UserCollection");
-        //        }
-        //        catch
-        //        {
-        //            return View("UserCollection");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        return View("UserCollection");
-        //    }
-        //}
 
     }
 }

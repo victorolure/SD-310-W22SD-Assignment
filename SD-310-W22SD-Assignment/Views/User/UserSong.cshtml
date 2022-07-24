@@ -1,0 +1,8 @@
+﻿@using SD_310_W22SD_Assignment.Models.ViewModels
+@model UserSongSelectViewModel
+<h3>Select User and Song to Add to User Collection</h3>
+<form asp-action="UpdateCollection">
+    <select name="userId" asp-items="Model.UserSelect"></select>
+    <select name="songId" asp-items="Model.SongSelect"></select>
+    <button type="submit">Add Song to Collection</button>
+</form>

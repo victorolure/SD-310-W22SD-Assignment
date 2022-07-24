@@ -1,4 +1,4 @@
-﻿@model SD_310_W22SD_Assignment.Models.User
+﻿@model User
 
 
 @{
@@ -23,11 +23,12 @@
 <ul>
     @foreach(Collection c in Model.Collections)
     {
-        <li>@c.Song.Title - @c.Song.ArtistNavigation.Name</li>
+        <li>@c.Song.Title - @c.Song.ArtistNavigation.Name </li>
     }
 </ul>
 <form asp-action="UserCollection" method="post">
     <select name="songId" asp-items="ViewBag.Message"></select>
+    <input type="hidden" value="@Model.Id" name="userId"/>
 <button type="submit">Add to Playlist</button>
 </form>
 <div>
