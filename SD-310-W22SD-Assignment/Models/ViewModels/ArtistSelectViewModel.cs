@@ -10,6 +10,7 @@ namespace SD_310_W22SD_Assignment.Models.ViewModels
         {
             ArtistSelect = new List<SelectListItem>();
             
+            
             artists.ForEach(a =>
             {
                 ArtistSelect.Add(new SelectListItem(a.Name, a.Id.ToString()));

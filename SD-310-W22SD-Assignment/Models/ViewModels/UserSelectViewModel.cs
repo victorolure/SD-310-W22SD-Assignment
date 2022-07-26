@@ -14,5 +14,8 @@ namespace SD_310_W22SD_Assignment.Models.ViewModels
                 UserSelect.Add(new SelectListItem(u.Name, u.Id.ToString()));
             });
         }
+        
     }
 }
+
+

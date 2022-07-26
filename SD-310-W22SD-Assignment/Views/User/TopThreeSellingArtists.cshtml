@@ -1,0 +1,48 @@
+﻿@model Dictionary<Artist, int>
+
+<h1>Top 3 Selling Artists</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Songs
+            </th>
+            <th>
+                Streams
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Key.Name
+                </td>
+                <td>
+                    <ul>
+                        @foreach (Song s in item.Key.Songs)
+                        {
+                            <div>@s.Title</div>
+                        }
+                    </ul>
+
+                </td>
+                <td>
+                    <ul>
+                        @foreach (Song s in item.Key.Songs)
+                        {
+                            <div>@($"{s.Collections.Count}")</div>
+                        }
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

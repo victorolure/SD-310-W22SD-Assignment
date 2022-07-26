@@ -89,6 +89,50 @@ namespace SD_310_W22SD_Assignment.Controllers
             List<Song> TopSellingSongs = SortedSongs.Take(3).ToList();
             return View(TopSellingSongs);
         }
+        public IActionResult TopThreeSellingArtists()
+        {
+            Dictionary<Artist, int> dbArtists = new Dictionary<Artist, int>();
+            List<Collection> dbCollections = _db.Collections.Include(c => c.Song).ThenInclude(s => s.ArtistNavigation).ToList();
+
+
+            foreach (Collection c in dbCollections)
+            {
+                if (dbArtists.Any(d => d.Key.Name == c.Song.ArtistNavigation.Name))
+                {
+
+                    dbArtists[c.Song.ArtistNavigation] += 1;
+                }
+                else
+                {
+                    dbArtists.Add(c.Song.ArtistNavigation, 1);
+                }
+            }
+            Dictionary<Artist, int> sortedArtists = dbArtists.OrderByDescending(c => c.Value).Take(3).ToDictionary(c => c.Key, c => c.Value);       
+            return View(sortedArtists);
+        }
+        public IActionResult TopThreeRatedSongs()
+        {
+            Dictionary<Song, int> dbSongs = new Dictionary<Song, int>();
+            List<Collection> dbCollections = _db.Collections.Include(c => c.Song).ThenInclude(s => s.ArtistNavigation).ToList();
+
+
+            foreach (Collection c in dbCollections)
+            {
+                if (dbSongs.Any(d => d.Key == c.Song))
+                {
+
+                    dbSongs[c.Song] += c.Rating;
+                }
+                else
+                {
+                    dbSongs.Add(c.Song, c.Rating);
+                }
+            }
+            Dictionary<Song, int> sortedDbSongs = dbSongs.OrderByDescending(c => c.Value).ToDictionary(c => c.Key, c => c.Value);
+            Dictionary<Song, int> topThreeRatedSongs = sortedDbSongs.Take(3).ToDictionary(c => c.Key, c => c.Value);
+           
+            return View(topThreeRatedSongs);
+        }
 
 
         [HttpPost]
@@ -217,6 +261,7 @@ namespace SD_310_W22SD_Assignment.Controllers
         
         public IActionResult Index()
         {
+            //UserSelectViewModel am = new UserSelectViewModel(_db.Users.ToList());
             UserSelectViewModel vm = new UserSelectViewModel(_db.Users.ToList());
             return View(vm);
         }
@@ -225,17 +270,9 @@ namespace SD_310_W22SD_Assignment.Controllers
         public IActionResult UserCollection(int? userId)
         {
             SongSelectViewModel sm = new SongSelectViewModel(_db.Songs.ToList());
-            ViewBag.Message = sm.SongSelect;
-            try
-            {
-                User user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
-                return View(user);
-            }
-            catch
-            {
-                return View();
-            }
-
+            ViewBag.Message = sm.SongSelect;           
+            User user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+            return View(user);
         }
         
         [HttpPost]

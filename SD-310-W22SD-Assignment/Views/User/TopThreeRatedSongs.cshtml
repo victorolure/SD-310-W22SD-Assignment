@@ -1,0 +1,35 @@
+﻿@model Dictionary<Song, int>
+
+<h1>Top 3 rated Songs</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Artist
+            </th>
+            <th>
+                Average Rating
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @item.Key.Title
+            </td>
+            <td>
+                @item.Key.ArtistNavigation.Name
+            </td>
+            <td>
+                @($"{item.Value/@item.Key.Collections.Count}")
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
