@@ -1,0 +1,57 @@
+﻿@model IEnumerable<SD_310_W22SD_Assignment.Models.Song>
+
+@{
+    ViewData["Title"] = "BuySong";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Songs Available To You</h1>
+
+
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                Artist
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArtistNavigation.Name)
+            </td>
+            <td>
+                <form asp-action="BuySong" method="post">
+                    <input type="hidden" value="@ViewBag.Message" name="userId"/>
+                    <input type="hidden" value="@item.Id" name="songId"/>
+                    <button type="submit">Buy Song</button>
+                </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<div>@ViewBag.Message2
+</div>
+<div>
+    <form asp-action="FundWallet" method="get">
+        <input type="hidden" value="@ViewBag.Message" name="userId" />
+        <button>Fund Wallet</button>
+    </form>
+</div>

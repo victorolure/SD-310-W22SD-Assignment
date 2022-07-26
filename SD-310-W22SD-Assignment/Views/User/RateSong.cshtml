@@ -1,0 +1,51 @@
+﻿@model SD_310_W22SD_Assignment.Models.Song
+
+@{
+    ViewData["Title"] = "RateSong";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>RateSong</h1>
+
+<div>
+    <h4>Song</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+        <dd class="col-sm-10">
+            $@Html.DisplayFor(model => model.Price)
+        </dd>
+        <dt class="col-sm-2">
+            Artist
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ArtistNavigation.Name)
+        </dd>
+        <dt class="col-sm-2">
+            Rating
+        </dt>
+        <dd class="col-sm-10">
+            <form asp-action="RateSong" method="post">
+                <input type="text" name="rating" />
+                <input type="hidden" value="@Model.Id" name="songId" />
+                <input type="hidden" value="@ViewBag.Message" name="userId" />
+                <button type="submit">Rate over 5</button>
+            </form>
+            <span>@ViewBag.Message2</span>
+        </dd>
+
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+

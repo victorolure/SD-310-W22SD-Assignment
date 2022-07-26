@@ -1,0 +1,9 @@
+﻿@model User
+
+<div>@ViewBag.Message</div>
+<div>
+    <form asp-action="FundWallet" method="get">
+        <input type="hidden" value="@Model.Id" name="userId" />
+        <button>Fund Wallet</button>
+    </form>
+</div>

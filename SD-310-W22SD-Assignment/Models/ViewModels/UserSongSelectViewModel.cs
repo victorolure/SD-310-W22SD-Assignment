@@ -14,6 +14,7 @@ namespace SD_310_W22SD_Assignment.Models.ViewModels
             songs.ForEach(s => SongSelect.Add(new SelectListItem(s.Title, s.Id.ToString())));
             users.ForEach(u=> UserSelect.Add(new SelectListItem(u.Name, u.Id.ToString())));
             
+            
         }
 
         

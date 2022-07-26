@@ -1,0 +1,8 @@
+﻿@model User
+
+<div>Fund @Model.Name's Wallet</div>
+<form asp-action="FundWallet" method="post">
+    <input type="hidden" value="@Model.Id" name="userId"/>
+    <input type="text" name="amount"/>
+    <button type="submit">Fund</button>
+</form>

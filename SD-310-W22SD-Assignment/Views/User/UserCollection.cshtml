@@ -1,37 +1,226 @@
 ﻿@model User
 
+<div>Balance: $@Model.Wallet</div>
+<h4>@ViewBag.Message2</h4>
 
+<h1>@Model.Name's Collection</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Song Title
+            </th>
+            <th>
+                Artist
+            </th>
+            <th>
+                Rating
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Collection c in Model.Collections)
+        {
+            if ((DateTime.Now.Date - c.PurchaseDate.Date).TotalDays < 30){
+                
+                if (c.Rating != 0){
+                    <tr>
+                <td>
+                    @c.Song.Title
+                </td>
+                <td>
+                    @c.Song.ArtistNavigation.Name
+                </td>
+                <td>
+                    @c.Rating
+                </td>
+                <td>
+                    <form asp-action="RefundSong" method="post">
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <button type="submit">Refund</button>
+                    </form>
+
+                </td>
+                <td>
+
+                    <form asp-action="RateSong" method="get">
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <button type="submit">Rate</button>
+                    </form>
+                </td>
+            </tr>
+                }else{
+                    <tr>
+                <td>
+                    @c.Song.Title
+                </td>
+                <td>
+                    @c.Song.ArtistNavigation.Name
+                </td>
+                <td>
+                    -
+                </td>
+                <td>
+                    <form asp-action="RefundSong" method="post">
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <button type="submit">Refund</button>
+                    </form>
+
+                </td>
+                <td>
+                    <form asp-action="RateSong" method="get">
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <button type="submit">Rate</button>
+                    </form>
+                </td>
+            </tr>
+                }
+                
+            }else{
+                <tr>
+                <td>
+                    @c.Song.Title
+                </td>
+                <td>
+                    @c.Song.ArtistNavigation.Name
+                </td>
+                <td>
+                    @c.Rating
+                </td>
+                <td>
+
+                </td>
+                <td>
+
+                    <form asp-action="RateSong" method="get">
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <button type="submit">Rate</button>
+                    </form>
+                </td>
+            </tr>
+            }
+            
+        }
+    </tbody>
+</table>
+<div>
+    <form asp-action="BuySong" method="get">
+        <input type="hidden" value="@Model.Id" name="userId" />
+        <button>Buy New Song</button>
+    </form>
+</div>
+<div>
+     <form asp-action="FundWallet" method="get">
+        <input type="hidden" value="@Model.Id" name="userId" />
+        <button>Fund Wallet</button>
+    </form>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+
+
+        
+
+
+
+
+
+@*/*
 @{
     ViewData["Title"] = "UserCollectionDetails";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+<div>Balance: $@Model.Wallet</div>
 <h1>@Model.Name's Playlist</h1>
-
+<h4>@ViewBag.Message2</h4>
 <div>
     <h4>User</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
     </dl>
 </div>
 <ul>
-    @foreach(Collection c in Model.Collections)
+    @foreach (Collection c in Model.Collections)
     {
-        <li>@c.Song.Title - @c.Song.ArtistNavigation.Name </li>
+        if ((DateTime.Now.Date - c.PurchaseDate.Date).TotalDays < 30)
+        {
+            if (c.Rating != 0)
+            {
+                <li>
+                    @c.Song.Title - @c.Song.ArtistNavigation.Name @c.Rating
+                    <form asp-action="RefundSong" method="post">
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <button type="submit">Refund</button>
+                    </form>
+                    <form asp-action="RateSong" method="get">
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <button type="submit">Rate</button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li>
+                    @c.Song.Title - @c.Song.ArtistNavigation.Name
+                    <form asp-action="RefundSong" method="post">
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <button type="submit">Refund</button>
+                    </form>
+                    <form asp-action="RateSong" method="get">
+                        <input type="hidden" value="@c.Song.Id" name="songId" />
+                        <input type="hidden" value="@Model.Id" name="userId" />
+                        <button type="submit">Rate</button>
+                    </form>
+                </li>
+            }
+
+        }
+        else
+        {
+            <li>@c.Song.Title - @c.Song.ArtistNavigation.Name</li>
+        }
+
     }
 </ul>
 <form asp-action="UserCollection" method="post">
     <select name="songId" asp-items="ViewBag.Message"></select>
-    <input type="hidden" value="@Model.Id" name="userId"/>
-<button type="submit">Add to Playlist</button>
+    <input type="hidden" value="@Model.Id" name="userId" />
+    <button type="submit">Add to Playlist</button>
 </form>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
-</div>
+
+    <form asp-action="FundWallet" method="get">
+        <input type="hidden" value="@Model.Id" name="userId" />
+        <button>Fund Wallet</button>
+    </form>
+    <form asp-action="BuySong" method="get">
+        <input type="hidden" value="@Model.Id" name="userId" />
+        <button>Buy New Song</button>
+    </form>
+
+</div>*@
+
+
+

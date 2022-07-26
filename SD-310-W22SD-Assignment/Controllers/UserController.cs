@@ -13,6 +13,208 @@ namespace SD_310_W22SD_Assignment.Controllers
             _db = context;
         }
 
+        
+        public IActionResult RateSong(int? songId, int? userId)
+        {
+            User user = _db.Users.First(u => u.Id == userId);
+            ViewBag.Message = user.Id;
+            Song song = _db.Songs.Include(s=> s.ArtistNavigation).First(s => s.Id == songId);
+            return View(song);
+
+        }
+        [HttpPost]
+        public IActionResult RateSong(int?songId, int?userId, int rating)
+        {
+            User user = _db.Users.Include(u => u.Collections).First(u => u.Id == userId);
+            Song song = _db.Songs.Include(s => s.ArtistNavigation).First(s => s.Id == songId);
+
+            Collection collection = user.Collections.First(u => u.Song == song && u.User == user );
+            if(collection.Rating == 0)
+            {
+                if(rating <= 5)
+                {
+                   user.Collections.First(u => u.UserId == userId && u.SongId == songId).Rating += rating;
+                    _db.SaveChanges();
+                }
+                else
+                {
+                    ViewBag.Message = user.Id;
+                    ViewBag.Message2 = "Sorry, Maximum rating is 5";
+                    return View("RateSong", song);
+                }
+            }
+            else
+            {
+                if(rating > 5)
+                {
+                    ViewBag.Message = user.Id;
+                    ViewBag.Message2 = "Sorry, Maximum rating is 5";
+                    return View("RateSong", song);
+                }
+                else
+                {
+                    user.Collections.First(u => u.UserId == userId && u.SongId == songId).Rating = rating;
+                    _db.SaveChanges();
+                }                
+            }           
+            user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+            
+            return View("UserCollection",user);
+
+        }
+        public IActionResult TopSellingSongs()
+        {
+            Dictionary<Song, int> dbSongs = new Dictionary<Song, int>();
+            List<Collection> dbCollections = _db.Collections.Include(c => c.Song).ThenInclude(s => s.ArtistNavigation).ToList();
+
+
+            foreach (Collection c in dbCollections)
+            {
+                if (dbSongs.Any(d=> d.Key == c.Song ))
+                {
+                    
+                    dbSongs[c.Song] += 1;
+                }
+                else
+                {
+                    dbSongs.Add(c.Song, 1);
+                }
+            }
+            Dictionary<Song, int> sortedDbSongs = dbSongs.OrderByDescending(c => c.Value).ToDictionary(c=> c.Key, c=> c.Value);
+            List<Song> SortedSongs = new List<Song>();
+            foreach(KeyValuePair<Song,int>kvp in sortedDbSongs)
+            {
+                SortedSongs.Add(kvp.Key);
+            }
+            List<Song> TopSellingSongs = SortedSongs.Take(3).ToList();
+            return View(TopSellingSongs);
+        }
+
+
+        [HttpPost]
+        public IActionResult RefundSong(int? songId, int? userId)
+        {
+            User user = _db.Users.Include(u => u.Collections).First(u => u.Id == userId);
+            Song song = _db.Songs.First(s => s.Id == songId);
+            Collection collectionToRefund = user.Collections.First(c => c.Song == song && c.User == user);
+            TimeSpan dateDifference = DateTime.Now.Subtract(collectionToRefund.PurchaseDate);
+            
+            if (dateDifference.TotalDays < 30)
+            {
+                user.Collections.Remove(collectionToRefund);
+                user.Wallet += song.Price;
+                _db.Collections.Remove(collectionToRefund);
+                _db.SaveChanges();
+                SongSelectViewModel sm = new SongSelectViewModel(_db.Songs.ToList());
+                ViewBag.Message = sm.SongSelect;
+                user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+                return View("UserCollection", user);
+            }
+            else
+            {
+                SongSelectViewModel sm = new SongSelectViewModel(_db.Songs.ToList());
+                ViewBag.Message = sm.SongSelect;
+                ViewBag.Message2 = "Sorry, You can only get a refund within 30 days of your purchase";
+                user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+                return View("UserCollection", user);
+            }
+            
+        }
+
+        public IActionResult BuySong(int? userId)
+        {
+            User user = _db.Users.Include(u=> u.Collections).First(u => u.Id == userId);
+            List<Song> list = _db.Songs.Include(s=> s.ArtistNavigation).ToList();
+            List<Collection> currentUserCollection = user.Collections.ToList();
+            List<Song> absentSongs = new List<Song>();
+            ViewBag.Message = user.Id;
+            foreach(Song s in list)
+            {
+                if(!currentUserCollection.Any(c=> c.SongId == s.Id))
+                {
+                   absentSongs.Add(s); 
+                }
+            }
+            absentSongs = absentSongs.OrderBy(s => s.Title).ToList();
+            return View(absentSongs);
+            
+        }
+
+        [HttpPost]
+        public IActionResult BuySong(int?userId, int? songId)
+        {
+            User user = _db.Users.Include(u => u.Collections).First(u => u.Id == userId);
+            Song song = _db.Songs.First(s => s.Id == songId);
+            Collection newCollection = new Collection();
+            if (!_db.Collections.Any(c => c.UserId == userId && c.SongId == songId))
+            {
+                if(user.Wallet >= song.Price)
+                {
+                    newCollection.User = user;
+                    newCollection.Song = song;
+                    newCollection.UserId = user.Id;
+                    newCollection.SongId = song.Id;
+                    newCollection.PurchaseDate = DateTime.Now.Date;
+                    song.Collections.Add(newCollection);
+                    user.Collections.Add(newCollection);
+                    _db.Collections.Add(newCollection);
+                    user.Wallet -= song.Price;
+                    _db.SaveChanges();
+                    user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+                    return View("UserCollection", user);
+                }
+                else
+                {
+                    ViewBag.Message2 = "Sorry, Insufficient balance, Please fund your wallet";
+                    user = _db.Users.Include(u => u.Collections).First(u => u.Id == userId);
+                    List<Song> list = _db.Songs.Include(s=> s.ArtistNavigation).ToList();
+                    List<Collection> currentUserCollection = user.Collections.ToList();
+                    List<Song> absentSongs = new List<Song>();
+                    ViewBag.Message = user.Id;
+                    foreach (Song s in list)
+                    {
+                        if (!currentUserCollection.Any(c => c.SongId == s.Id))
+                        {
+                            absentSongs.Add(s);
+                        }
+                    }
+                    return View("BuySong", absentSongs);
+                    
+                }
+                
+            }
+            else
+            {
+                return View("UserCollection", user);
+            }
+        }
+
+        public IActionResult BalanceError(int?userId)
+        {
+            User user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+            ViewBag.Message = "Sorry, Insufficient balance, Click button below to fund your wallet";
+            return View(user);
+        }
+
+        public IActionResult FundWallet(int? userId)
+        {
+            User user = _db.Users.First(u => u.Id == userId);
+            return View(user);
+        }
+        [HttpPost]
+        public IActionResult FundWallet(int? userId, int amount)
+        {
+            User user = _db.Users.Include(u => u.Collections.OrderBy(c => c.Song.Title)).ThenInclude(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(u => u.Id == userId);
+            SongSelectViewModel sm = new SongSelectViewModel(_db.Songs.ToList());
+            ViewBag.Message = sm.SongSelect;
+            user.Wallet += amount;
+            _db.SaveChanges();
+           
+            return Redirect($"https://localhost:7265/User/UserCollection?userId={user.Id}");
+           
+        }
+
+        
         public IActionResult Index()
         {
             UserSelectViewModel vm = new UserSelectViewModel(_db.Users.ToList());

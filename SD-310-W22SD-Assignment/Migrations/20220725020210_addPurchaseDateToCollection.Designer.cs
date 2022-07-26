@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SD_310_W22SD_Assignment.Models;
 
@@ -11,9 +12,10 @@ using SD_310_W22SD_Assignment.Models;
 namespace SD_310_W22SD_Assignment.Migrations
 {
     [DbContext(typeof(MyTunesContext))]
-    partial class MyTunesContextModelSnapshot : ModelSnapshot
+    [Migration("20220725020210_addPurchaseDateToCollection")]
+    partial class addPurchaseDateToCollection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,9 +54,6 @@ namespace SD_310_W22SD_Assignment.Migrations
 
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
 
                     b.Property<int>("SongId")
                         .HasColumnType("int");
