@@ -1,0 +1,8 @@
+﻿@model Collection
+<div class="form-group">
+    @Html.LabelFor(Model => Model.PurchaseDate, htmlAttributes: new { @class = "control-label col-md-2" })
+    <div class="col-md-10">
+        @Html.TextBoxFor(Model => Model.PurchaseDate, new { @type="date", @class = "form-control datepicker",  @Value = Model.PurchaseDate.ToString("yyyy-MM-dd") } )
+        @Html.ValidationMessageFor(model => model.PurchaseDate, "", new { @class = "text-danger" })
+    </div>
+</div>

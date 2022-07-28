@@ -13,7 +13,6 @@ namespace SD_310_W22SD_Assignment.Controllers
             _db = context;
         }
 
-        
         public IActionResult RateSong(int? songId, int? userId)
         {
             User user = _db.Users.First(u => u.Id == userId);
@@ -92,6 +91,7 @@ namespace SD_310_W22SD_Assignment.Controllers
         public IActionResult TopThreeSellingArtists()
         {
             Dictionary<Artist, int> dbArtists = new Dictionary<Artist, int>();
+            
             List<Collection> dbCollections = _db.Collections.Include(c => c.Song).ThenInclude(s => s.ArtistNavigation).ToList();
 
 
@@ -109,6 +109,13 @@ namespace SD_310_W22SD_Assignment.Controllers
             }
             Dictionary<Artist, int> sortedArtists = dbArtists.OrderByDescending(c => c.Value).Take(3).ToDictionary(c => c.Key, c => c.Value);       
             return View(sortedArtists);
+        }
+        public IActionResult DateRange()
+        {
+            ViewBag.minDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 05);
+            ViewBag.maxDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 27);
+            Collection collection = _db.Collections.Include(c => c.Song).ThenInclude(s => s.ArtistNavigation).First(c => c.Id == 135);
+            return View(collection);
         }
         public IActionResult TopThreeRatedSongs()
         {
@@ -129,7 +136,7 @@ namespace SD_310_W22SD_Assignment.Controllers
                 }
             }
             Dictionary<Song, int> sortedDbSongs = dbSongs.OrderByDescending(c => c.Value).ToDictionary(c => c.Key, c => c.Value);
-            Dictionary<Song, int> topThreeRatedSongs = sortedDbSongs.Take(3).ToDictionary(c => c.Key, c => c.Value);
+            Dictionary<Song, int> topThreeRatedSongs = sortedDbSongs.OrderByDescending(c=> c.Value).Take(3).ToDictionary(c => c.Key, c => c.Value);
            
             return View(topThreeRatedSongs);
         }
